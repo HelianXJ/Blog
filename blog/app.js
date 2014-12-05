@@ -8,6 +8,9 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 // var users = require('./routes/users');
 
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+
 var app = express(); //生成一个express实例 app
 
 // view engine setup
@@ -23,6 +26,17 @@ app.use(bodyParser.urlencoded({ extended: false })); //加载解析urlencoded请
 app.use(cookieParser()); //加载解析cookie的中间件
 app.use(express.static(path.join(__dirname, 'public')));  //设置public文件夹为存放静态文件的目录。
 
+
+app.use(session({
+  secret: settings.cookieSecret,
+  key: settings.db,//cookie name
+  cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
+  store: new MongoStore({
+    db: settings.db,
+    host: settings.host,
+    port: settings.port
+  })
+}));
 // app.use('/', routes);
 // app.use('/users', users);
 
